@@ -3,7 +3,102 @@ from kagglehub import KaggleDatasetAdapter
 import pandas as pd
 import os
 import random
+import sys
+import json
 from movie import Movie
+
+def initialise():
+    if os.path.exists(os.path.join(os.getcwd(), 'save_data', 'users.json')):
+        print("Initialised")
+    else:
+        with open(os.path.join(os.getcwd(), 'save_data', 'users.json'), 'w') as file:
+            json_data = {
+                "users": []
+            }
+            file.write(json.dumps(json_data, indent=4))
+
+def login():
+    username_input = ""
+    password_input = ""
+    password_attempts = 0
+    while username_input != "exit":
+        username_input = input("Enter your username: ")
+        with open(os.path.join(os.getcwd(), 'save_data', 'users.json'), 'r') as file:
+            data = json.load(file)
+            for user in data['users']:
+                if user['username'] == username_input.strip():
+                    while password_input != "exit":
+                        password_input = input("Enter your password: ")
+                        if user['password'] == password_input:
+                            print("Login successful")
+                            return True
+                        else:
+                            password_attempts += 1
+                            print(f"Incorrect password. Attempts: {password_attempts} - Try again.")
+                            if password_attempts >= 3:
+                                sys.exit("Too many attempts. Try again later.")
+                            continue
+                    sys.exit("Exiting...")
+            print("Username not found. Try again.")
+    sys.exit("Exiting...")
+
+def register():
+    username_input = ""
+    password_input = ""
+    while username_input != "exit":
+        username_input = input("Enter your username: ")
+        with open(os.path.join(os.getcwd(), 'save_data', 'users.json'), 'r') as file:
+            data = json.load(file)
+
+        for user in data['users']:
+            if user['username'] == username_input.strip():
+                print("Username already exists. Try again.")
+                break
+            else:
+                password_reinput = ""
+                password_input = input("Enter your password: ")
+                while password_input != password_reinput:
+                    password_reinput = input("Re-enter your password: ")
+                    if password_input == password_reinput:
+                        print("Registration successful")
+                        with open(os.path.join(os.getcwd(), 'save_data', 'users.json'), 'w') as write_file:
+                            new_user = {
+                                "username": username_input,
+                                "password": password_input
+                            }
+                            data['users'].append(new_user)
+                            json.dump(data, write_file, indent=4)
+                            return True
+                    else:
+                        print("Passwords do not match. Try again.")
+                        break
+    sys.exit("Exiting...")
+
+
+def welcome_screen():
+    usr_input = 0
+    while usr_input != 3:
+        print('''========================================
+Welcome to the Movie Recommender System'
+========================================
+1. Login 
+2. Register
+3. Exit
+========================================''')
+        usr_input = int(input("Enter your choice: "))
+        match usr_input:
+            case 1:
+                print("Login")
+                login()
+                break
+            case 2:
+                print("Register")
+                register()
+                break
+            case 3:
+                sys.exit("Exiting...")
+            case _:
+                print("Invalid input. Try again.")
 
 def download_dataset():
     path = kagglehub.dataset_download("harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows")
@@ -120,8 +215,11 @@ def main():
     path = download_dataset()
     df = get_dataframe(path) 
 
-    login()
-    login = input("Enter your name: ")
+    initialise()
+    #login()
+    #login = input("Enter your name: ")
+
+    welcome_screen()
     menu(df)
 
 if __name__ == "__main__":

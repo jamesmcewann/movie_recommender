@@ -1,0 +1,23 @@
+{
+    "users": [
+        {
+            "username": "john_doe",
+            "password": "password123",
+            "userid": 1
+        },
+        {
+            "username": "jane_smith",
+            "password": "securepass456",
+            "userid": 2
+        },
+        {
+            "username": "alex_jones",
+            "password": "mypassword789",
+            "userid": 3
+        },
+        {
+            "username": "ajmes",
+            "password": "bla"
+        }
+    ]
+}
